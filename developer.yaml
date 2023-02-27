@@ -1,0 +1,8 @@
+name: playground-kafka
+
+channels:
+  - conda-forge
+
+dependencies:
+  - python=3.11
+  - kafka-python=2.0.2
