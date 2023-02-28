@@ -1,35 +1,22 @@
+"""Simple script to publish the square of the numbers 1-100
+to a given Kafka topic
 """
-"""
-from pathlib import Path
-import struct
+from argparse import ArgumentParser
 import sys
 
 from kafka import KafkaProducer
 
-def read_ccloud_config(config_filepath: Path) -> dict:
-    """Read properties file and return a dict of properties
-
-    :param config_filepath: A path to a file containing settings in a .properties format
-    :return: A dictionary of configu properties
-    """
-    conf = {}
-    with open(config_filepath) as fh:
-        for line in fh:
-            line = line.strip()
-            if len(line) != 0 and line[0] != "#":
-                parameter, value = line.strip().split('=', 1)
-                conf[parameter] = value.strip()
-    return conf
 
 def main() -> int:
-    # Usage: ./ex01_producers config_filepath topic
-    config_filepath = Path(sys.argv[1])
-    topic = str(sys.argv[2])
+    # Parse arguments
+    parser = ArgumentParser()
+    parser.add_argument("bootstrap_servers", type=str, help="Addresses of Kafka endpoint separated by ;")
+    parser.add_argument("topic", type=str, help="The Kafka topic")
+    args = parser.parse_args()
 
-    cluster_config = read_ccloud_config(config_filepath)
-    producer = KafkaProducer(**cluster_config)
-    for i in range(100):
-        producer.send(topic, f'{i*i}'.encode('utf-8'))
+    producer = KafkaProducer(bootstrap_servers=args.bootstrap_servers)
+    for i in range(1,101):
+        producer.send(topic=args.topic, value=f'{i*i}'.encode('utf-8'))
     producer.flush()
 
     return 0
